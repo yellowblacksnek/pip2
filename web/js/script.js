@@ -1,16 +1,18 @@
-function checkData() {
+function checkData(text_field) {
 
-    let value = $("#x").val().replace(/,/g, '.');
+    let id = text_field.id;
+
+    let value = $("#"+id).val().replace(/,/g, '.');
 
     if (!$.isNumeric(value) && value != "-" && value != "") {
-        $("#x").val("");
-        $("#wrongXAlert").stop(true, true).fadeIn( 200 ).delay( 1000 ).fadeOut( 200 );
+        $("#"+id).val("");
+        $("#"+ id +"_wrongAlert").stop(true, true).fadeIn( 200 ).delay( 1000 ).fadeOut( 200 );
     }
 
     if ((-3 > value) || (value > 3)) {
-        $("#x").val("");
+        $("#"+id).val("");
         //$("#x").attr("style", 'border: 2px solid red; mix-blend-mode: normal;');
-        $("#wrongXAlert").stop(true, true).fadeIn( 200 ).delay( 1000 ).fadeOut( 200 );
+        $("#"+ id +"_wrongAlert").stop(true, true).fadeIn( 200 ).delay( 1000 ).fadeOut( 200 );
     }
 }
 
@@ -254,8 +256,11 @@ function getTransform(x, y) {
 
 function imageClicked(event) {
 
-    let r = $("#r").val();
-    if(!r) return;
+    let val = $("#r").val();
+    if(!val) {
+        $("#r")[0].reportValidity();
+        return;
+    }
 
     //console.log(event.clientX + " " + event.clientY);
 
@@ -266,16 +271,56 @@ function imageClicked(event) {
 
     let width = $('#imageSvg').width();
     let height = $('#imageSvg').height();
-
+    let r = parseFloat(val.replace(',','.'));
     let x = (relativeX - (width / 2)) / 70;
     let y = ((height / 2) - relativeY) / 70;
 
-    document.getElementById("x").value = (x * r).toFixed(2);
-    //document.getElementById("xValue").value = (x * r).toFixed(2);
-    document.getElementById('yCustom').value = (y * r).toFixed(2);
+    // document.getElementById('x').value = (x * r).toFixed(2);
+    //
+    // document.getElementById('yCustom').value = (y * r).toFixed(2);
+    // $('input[name=y]').prop('checked',false);
+    // $('input[id=yCustom]').prop('checked', true);
+    setFieldValue("x", (x * r).toFixed(2));
+    setFieldValue("y", (y * r).toFixed(2));
+
+    //$('select option:eq(10)').prop('selected',true)
+
+    // document.getElementById('x').value = (x * r).toFixed(2);
+    // document.getElementById('yCustom').value = (y * r).toFixed(2);
+    // document.getElementById('yCustom').value = (y * r).toFixed(2);
+    // $('input[id=yCustom]').prop('selected', true);
+
+    // $('input[name=y]').prop('checked',false);
+    //
+    // document.getElementById('form').elements['x'].type;
+    // document.getElementById('x').value = (x * r).toFixed(2);
+    // //document.getElementById("xValue").value = (x * r).toFixed(2);
+    // document.getElementById('yCustom').value = (y * r).toFixed(2);
+    // $('input[id=yCustom]').prop('checked', true);
+
+    //console.log(x, y, r);
 
     $('#form').submit();
 
+}
+
+function setFieldValue(name, value) {
+    let custom = name + "Custom";
+    if($('#'+name).length) {
+        document.getElementById(name).value = value;
+        console.log(name, "a");
+        if($('#'+custom).length) {
+            document.getElementById(name+"Custom").value = value;
+            console.log(name, "aa");
+            $('input[name=' + name + ']').prop('checked',false);
+            $('#' + custom).prop('selected', true);
+        }
+    } else {
+        document.getElementById(name + 'Custom').value = value;
+        $('input[name=' + name + ']').prop('checked',false);
+        $('#' + custom).prop('checked', true);
+        console.log(name, "b");
+    }
 }
 
 $(document).ready(function () {

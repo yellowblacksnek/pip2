@@ -40,7 +40,7 @@ body {
     margin: 0 auto;
     padding: 10px;
     width: 100%;
-    min-width: 240px;
+    min-width: 220px;
     max-width: 365px;
     mix-blend-mode: hard-light;
     border-radius: 5px;
@@ -60,6 +60,7 @@ body {
     line-height: 21px;
     color: rgb(0, 0, 0);
     text-align: center;
+    white-space: nowrap;
 }
 
 .headerRect {
@@ -83,7 +84,9 @@ body {
 .inputTable {
     text-align: left;
     border-spacing: 0 5px;
-    margin: auto auto;
+    margin: 0;
+    min-width: 220px;
+    max-width: 365px;
 }
 
 .inputTable tr {

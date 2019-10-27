@@ -31,14 +31,10 @@ public class AreaCheckServlet extends HttpServlet {
 
     private void doTheJob(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         long startTime = System.nanoTime();
+
         String x = makePretty(req.getParameter("x"));
         String y = makePretty(req.getParameter("y"));
         String r = makePretty(req.getParameter("r"));
-
-        System.err.println(x);
-        System.err.println(y);
-        System.err.println(r);
-
 
         double realX = 100 + 70 * Double.parseDouble(x)/Double.parseDouble(r);
         double realY = 100 - 70 * Double.parseDouble(y)/Double.parseDouble(r);
@@ -97,6 +93,10 @@ public class AreaCheckServlet extends HttpServlet {
     }
 
     private String makePretty(String input) {
-        return input.replaceAll("\\.?0*$", "").replaceAll("\\.+$", "");
+        double a = Double.parseDouble(input.replaceAll(",", "."));
+        if(a == Math.round(a))
+            return ("" + (int) a);
+        else
+            return String.format("%1.2f", a).replaceAll(",", ".");
     }
 }

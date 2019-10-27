@@ -3,6 +3,7 @@
 <%@ page import="static ru.yellowblacksnek.AreaUtils.*" %>
 <%@ page import="ru.yellowblacksnek.Combination" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="ru.yellowblacksnek.FieldConfig" %>
 <html lang="ru">
 
 <head>
@@ -22,24 +23,31 @@
     final Triangle poly = new Triangle(new Point("0", "R/2"), new Point("R/2", "0"));
     final Arc arc = new Arc(R, ArcSectors.III);
 
+    final FieldConfig x = new FieldConfig("x", FieldConfig.FieldTypes.Text, FieldConfig.DataTypes.Text, -3, 3);
+    final FieldConfig y = new FieldConfig("y", FieldConfig.FieldTypes.Text, FieldConfig.DataTypes.Int, -3, 5);
+    final FieldConfig r = new FieldConfig("r", FieldConfig.FieldTypes.Select, FieldConfig.DataTypes.Int_And_Halves, 1, 3);
+
     final StringBuilder historyBuilder = new StringBuilder();
     ArrayList<Combination> historyList = new ArrayList<>();
     if(request.getSession().getAttribute("history") != null) {
         historyList = (ArrayList<Combination>) request.getSession().getAttribute("history");
     }
-    for(Combination each : historyList) {
-//        String str = each.toString();
-        historyBuilder.append(each);
+    if(historyList != null) {
+      for(Combination each : historyList) {
+  //        String str = each.toString();
+          historyBuilder.append(each);
+      }
     }
 %>
 
 <body>
 <table class="mainTable animated zoomIn fast">
-  <jsp:setProperty name="user" property="name" value="<%=true%>" />
+<%--  <jsp:setProperty name="user" property="name" value="<%=true%>" />--%>
   <tr>
     <td>
       <div class="rect headerRect">
-        <span class="headerText">Венщиков Марат, P3201<br> Вариант 201004</span>
+        <div class="headerText name">Венщиков Марат, P3201</div>
+        <div class="headerText variant"> Вариант 201004</div>
       </div>
     </td>
   </tr>
@@ -92,46 +100,27 @@
     <td class="rect">
       <form id="form" action="controller" method="<%= method%>">
         <table class="inputTable">
-          <tr>
-            <td colspan="2">Введите входные данные</td>
-          </tr>
-          <tr id="xRow">
-            <td>X: </td>
-            <td>
-              <input type="text" name="x" id="x" placeholder="[-3; 3]" onchange="checkData()" onkeyup="checkData()" autocomplete="off" maxlength="6"  required>
-            </td>
-            <td>
-              <span class="hide alert" id="wrongXAlert">Число от -3 до 3!</span>
-            </td>
-          </tr>
-          <tr id="yRow">
-            <td>Y: </td>
-            <td class="block yBlock" colspan="2" >
-              <label><input type="radio" name="y" value="-3" required/>-3</label>
-              <label><input type="radio" name="y" value="-2" required/>-2</label>
-              <label><input type="radio" name="y" value="-1" required/>-1</label>
-              <label><input type="radio" name="y" value="0" required/>0</label>
-              <label><input type="radio" name="y" value="1" required/>1</label>
-              <label><input type="radio" name="y" value="2" required/>2</label>
-              <label><input type="radio" name="y" value="3" required/>3</label>
-              <label><input type="radio" name="y" value="4" required/>4</label>
-              <label><input type="radio" name="y" value="5" required/>5</label>
-              <label><input type="hidden" name="y" id="yCustom"/></label>
-            </td>
-          </tr>
-          <tr id="rRow">
-            <td>R: </td>
-            <td colspan="2">
-              <select name="r" id="r" required>
-                <option value="">Выберите число</option>
-                <option value="1">1</option>
-                <option value="1.5">1,5</option>
-                <option value="2">2</option>
-                <option value="2.5">2,5</option>
-                <option value="3">3</option>
-              </select>
-            </td>
-          </tr>
+<%--          <tr>--%>
+<%--            <td colspan="3">Введите входные данные</td>--%>
+<%--          </tr>--%>
+<%--          <tr>--%>
+<%--            <td>X: </td>--%>
+<%--            <td><%=x.getInputOnly()%></td>--%>
+<%--            <td>--%>
+<%--              <span class="hide alert" id="x_wrongAlert">От -3 до 3!</span>--%>
+<%--            </td>--%>
+<%--          </tr>--%>
+            <%=x.toString()%>
+<%--          <tr>--%>
+<%--            <td>Y: </td>--%>
+<%--            <td colspan="2" ><%=y.getInputOnly()%></td>--%>
+<%--          </tr>--%>
+            <%=y.toString()%>
+<%--          <tr>--%>
+<%--            <td>R: </td>--%>
+<%--            <td colspan="2"><%=r.getInputOnly()%></td>--%>
+<%--          </tr>--%>
+            <%=r.toString()%>
           <tr id="submitRow">
             <td colspan="2">
               <button class="btn" id="checkBtn" type="submit">Проверить вхождение</button>
