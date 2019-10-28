@@ -100,26 +100,8 @@
     <td class="rect">
       <form id="form" action="controller" method="<%= method%>">
         <table class="inputTable">
-<%--          <tr>--%>
-<%--            <td colspan="3">Введите входные данные</td>--%>
-<%--          </tr>--%>
-<%--          <tr>--%>
-<%--            <td>X: </td>--%>
-<%--            <td><%=x.getInputOnly()%></td>--%>
-<%--            <td>--%>
-<%--              <span class="hide alert" id="x_wrongAlert">От -3 до 3!</span>--%>
-<%--            </td>--%>
-<%--          </tr>--%>
             <%=x.toString()%>
-<%--          <tr>--%>
-<%--            <td>Y: </td>--%>
-<%--            <td colspan="2" ><%=y.getInputOnly()%></td>--%>
-<%--          </tr>--%>
             <%=y.toString()%>
-<%--          <tr>--%>
-<%--            <td>R: </td>--%>
-<%--            <td colspan="2"><%=r.getInputOnly()%></td>--%>
-<%--          </tr>--%>
             <%=r.toString()%>
           <tr id="submitRow">
             <td colspan="2">
@@ -158,4 +140,11 @@
   </tr>
 </table>
 <div class="hide" id="history"><%=historyBuilder.toString()%></div>
+
+<script>
+  $(document).ready(function () {
+    $('#imageSvg').click(imageClicked);
+    drawDots();
+  });
+</script>
 </body>

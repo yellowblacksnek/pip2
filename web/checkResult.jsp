@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="ru.yellowblacksnek.AreaUtils"%>
 <%@ page import="static ru.yellowblacksnek.AreaUtils.*" %>
+<%@ page import="ru.yellowblacksnek.Combination" %>
+<%@ page import="java.util.ArrayList" %>
 <html lang="ru">
 <head>
 	<title>Результат вычислений</title>
@@ -12,53 +14,21 @@
     <script language="text/javascript" src="js/script.js" type="text/javascript"></script>
 </head>
 
+<%
+    final StringBuilder historyBuilder = new StringBuilder();
+    ArrayList<Combination> historyList = new ArrayList<>();
+    if(request.getSession().getAttribute("history") != null) {
+        historyList = (ArrayList<Combination>) request.getSession().getAttribute("history");
+    }
+    if(historyList != null) {
+        for(Combination each : historyList) {
+            //        String str = each.toString();
+            historyBuilder.append(each);
+        }
+    }
+%>
+
 <body>
-    <%
-//        String x = (String)request.getAttribute("x");
-//        String y = (String)request.getAttribute("y");
-//        String r = (String)request.getAttribute("r");
-//        String matched = (String)request.getAttribute("matched");
-        /*function isCorrect(&$arr) {
-            if(!array_key_exists('x', $_POST) 
-            || !array_key_exists('y', $_POST)
-            || !array_key_exists('r', $_POST))  return false;
-            global $x, $y, $r;
-            $x = $_POST['x'];
-            $y = $_POST['y'];
-            $r = $_POST['r'];
-            if($x == null || $y == null || $r == null) return false;
-            if(!is_numeric($x) || $x < -3 || $x > 3) return false;
-            if(!is_integer($y+0) || $y < -3 || $y > 5) return false;
-            $correctRs = array("1", "1.5", "2", "2.5", "3");
-            if(!is_numeric($r) || !in_array($r, $correctRs)) return false;
-
-            return true;
-        }
-
-        $correctInput = false;
-        //those to be defined in isCorrect func
-        $x = null;
-        $y = null;
-        $r = null;
-
-        if($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $correctInput = isCorrect($_POST);
-        }
-        
-        $rightNumbers = false;
-        if($correctInput) {
-            if ($x >= 0 && $y >= 0 && $y <= -$x + $r / 2) {
-                $rightNumbers = true;
-            } elseif ($x <= 0 && $y >= 0 && $x >= -$r && $y <= $r / 2) {
-                $rightNumbers = true;
-            } elseif ($x <= 0 && $y <= 0 && ($x * $x + $y * $y) <= ($r * $r)) {
-                $rightNumbers = true;
-            }
-        }   
-
-        $execTime = number_format((microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"]) * 1000000, 2, ",", ".") . " мкс";*/
-
-    %>
 <table class="mainTable animated zoomIn fast">
     <tr>
         <td>
@@ -132,7 +102,7 @@
                         String resultText = (Boolean)request.getAttribute("matched") ? "попадание" : "промах";
                         String resultColor = (Boolean)request.getAttribute("matched") ? "#008000" : "#B22222";
                     %>
-                    <span style="color:<%=resultColor%>;"><%=resultText%></span>
+                    <span id="resultField" style="color:<%=resultColor%>;"><%=resultText%></span>
                     <script type="text/javascript">
                         setDotCoordResponse();
                     </script>
@@ -166,17 +136,9 @@
                 <a onclick="clearHist()" class="btn textBtn">Очистить историю</a>
             </div>
         </td>
-    </tr> 
-        
-        <script>
-            // <?php
-            // if($correctInput) {
-            //     echo "save($x,$y,$r," . (($rightNumbers) ? 'true);' : 'false);');
-            // }
-            // ?>
-            console.log("<%=request.getSession().getAttribute("history")%>");
-        </script>
+    </tr>
 </table>
+<div class="hide" id="history"><%=historyBuilder.toString()%></div>
 </body>
 </html>
 

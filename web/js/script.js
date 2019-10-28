@@ -11,34 +11,9 @@ function checkData(text_field) {
 
     if ((-3 > value) || (value > 3)) {
         $("#"+id).val("");
-        //$("#x").attr("style", 'border: 2px solid red; mix-blend-mode: normal;');
         $("#"+ id +"_wrongAlert").stop(true, true).fadeIn( 200 ).delay( 1000 ).fadeOut( 200 );
     }
 }
-
-// function checkFields() {
-//     let value = $("#x").val().replace(/,/g, '.');
-//     let correctFields = true;
-//     if (value.length === 0) {
-//         correctFields = false;
-//     }
-
-//     if (!($('input[type="radio"]').is(":checked") || $('#y option').is(":selected"))) {
-//         correctFields = false;
-//     }
-
-//     if (!$("#r").val()) {
-//         correctFields = false;
-//     }
-
-//     if (correctFields) {
-//         $("#x").val(value);
-//         $('.mainTable').addClass("zoomOut");
-//     } else {
-//         event.preventDefault();
-//         $('#wrongInputAlert').stop(true, true).fadeIn( 300 ).delay( 1500 ).fadeOut( 400 );
-//     }
-// }
 
 function histBtnPressed() {
     $(".arrow-icon").toggleClass("open");
@@ -140,21 +115,17 @@ function okPressed() {
     $('.mainTable').addClass("zoomOut");
 }
 
-function setDotCoord(x, y, r) {
-    let dot = document.getElementById("dot");
-    //dot.style.cx = 100 + 70 * (x/r);
-    //dot.style.cy = 100 - 70 * (y/r);
-    $("#dot").attr("cx", 100 + 70 * (x/r));
-    $("#dot").attr("cy", 100 - 70 * (y/r));
-}
-
 function setDotCoordResponse() {
+    let xField = document.getElementById("xField");
+    let yField = document.getElementById("yField");
+    let rField = document.getElementById("rField");
+
     if(!($("#xField").length && $("#yField").length && $("#rField").length)) return;
     let x = parseFloat($("#xField").attr("title").replace(",", "."));
     let y = parseFloat($("#yField").attr("title").replace(",", "."));
     let r = parseFloat($("#rField").attr("title").replace(",", "."));
-    setDotCoord(x, y, r);
-    showDot();
+    let result = $('#resultField').text() == "попадание";
+    showDot(x, y, r, result);
 }
 
 function makeRowsClickable() {
@@ -167,25 +138,27 @@ function makeRowsClickable() {
 
 function rowClicked(row) {
     let children = row.children;
-    let x = parseFloat(children[0].firstChild.title);
-    let y = parseFloat(children[1].firstChild.title);
-    let r = parseFloat(children[2].firstChild.title);
-    setDotCoord(x, y, r);
-    showDot();
+    let x = parseFloat(children[0].firstChild.title.replace(',', '.'));
+    let y = parseFloat(children[1].firstChild.title.replace(',', '.'));
+    let r = parseFloat(children[2].firstChild.title.replace(',', '.'));
+    let result = children[3].firstChild.innerHTML.toString() == "Попадание";
+    showDot(x, y, r, result);
 }
 
-function showDot() {
-    let dot = document.getElementById("dot");
-    let arrow = document.getElementById("arrow");
-    let x = $("#dot").attr("cx");
-    let y = $("#dot").attr("cy");
-    if(x < 0 || y < 0 || x > 200 || y > 200) {
+function showDot(x, y, r, result) {
+    let realX = 100 + 70 * (x/r);
+    let realY = 100 - 70 * (y/r);
+    //console.log(x, y);
+    if(realX < 0 || realY < 0 || realX > 200 || realY > 200) {
         $('#dot').stop(true,true).fadeOut();
-        $('#arrow').stop(true,true).fadeOut();
-        $('#arrow').attr("transform", getTransform(x,y));
-        $('#arrow').stop(true,true).fadeIn();
+        $('#arrow').stop(true,true).fadeOut()
+            .attr("transform", getTransform(x, y, realX, realY))
+            .stop(true,true).fadeIn();
     } else {
-        $('#dot').stop(true,true).fadeIn();
+        $('#dot').stop(true,true).fadeOut()
+            .attr("cx", realX).attr("cy", realY)
+            .attr("fill", result ? "green" : "red")
+            .stop(true, true).fadeIn();
         $('#arrow').stop(true,true).fadeOut();
     }
 }
@@ -203,15 +176,19 @@ class Line {
         this.y1 = y1;
         this.x2 = x2;
         this.y2 = y2;
-        this.k = (y2-y1)/(x2-x1);
-        this.b = (x2*y1 - x1*y2)/(x2 - x1);
+        if(x1 != x2) {
+            this.k = (y2-y1)/(x2-x1);
+        } else this.k = 0;
+        if(x1 != x2) {
+            this.b = (x2*y1 - x1*y2)/(x2 - x1);
+        } else this.b = 0;
     }
 
     intersect(other) {
         if(other.x1==other.x2) {
-            return(new Point(other.x1, this.k*other.x1+this.b))
+            return(new Point(other.x1, this.k == 0 ? 100 : this.k*other.x1+this.b))
         } else if (other.y1==other.y2) {
-            return(new Point((other.y1-this.b)/this.k, other.y1));
+            return(new Point(this.k == 0 ? 100 : (other.y1-this.b)/this.k, other.y1));
         } else return(new Point(0,0));
     }
 }
@@ -233,23 +210,25 @@ class Transform {
     }
 }
 
-function getTransform(x, y) {
+function getTransform(x, y, realX, realY) {
     let result = new Transform(100, 100, 0);
-    let line = new Line(100, 100, x, y);
-    let degree = Math.atan(line.k) * 180/Math.PI;
-    if(x > 100) degree += 180;
-    result.rot = degree;
-    if(degree >= -45 && degree <= 45) {
-        result.setPoint(line.intersect(new Line(0,0,0,200)));
+    let line = new Line(100, 100, realX, realY);
+    let angleLine = new Line(0, 0, x, y);
+    let atan = Math.atan2(y, x);
+    let degree = atan * 180/Math.PI;
+    if(x == 100) degree = realY < 0 ? 90 : 270;
+    result.rot = 180 - degree;
+    if(degree >= 135 || degree <= -135) {
+        result.setPoint(line.intersect(new Line(0,0,0,200))); //left
     }
-    if(degree >= 45 && degree <= 135) {
-        result.setPoint(line.intersect(new Line(0,0,200,0)));
+    else if(degree >= 45 && degree <= 135) {
+        result.setPoint(line.intersect(new Line(0,0,200,0))); //up
     }
-    if(degree >= 135 && degree <= 225) {
-        result.setPoint(line.intersect(new Line(200,0,200,200)));
+    else if(degree <= 45 && degree >= -45) {
+        result.setPoint(line.intersect(new Line(200,0,200,200))); //right
     }
-    if(degree >= 225 && degree <= 315) {
-        result.setPoint(line.intersect(new Line(0,200,200,200)));
+    else if(degree >= -135 && degree <= -45) {
+        result.setPoint(line.intersect(new Line(0,200,200,200))); //down
     }
     return result.toString();
 }
@@ -262,12 +241,8 @@ function imageClicked(event) {
         return;
     }
 
-    //console.log(event.clientX + " " + event.clientY);
-
     let relativeX = event.pageX - $('#imageSvg').offset().left;
     let relativeY = event.pageY - $('#imageSvg').offset().top;
-
-    //console.log(relativeX + " " + relativeY);
 
     let width = $('#imageSvg').width();
     let height = $('#imageSvg').height();
@@ -275,30 +250,8 @@ function imageClicked(event) {
     let x = (relativeX - (width / 2)) / 70;
     let y = ((height / 2) - relativeY) / 70;
 
-    // document.getElementById('x').value = (x * r).toFixed(2);
-    //
-    // document.getElementById('yCustom').value = (y * r).toFixed(2);
-    // $('input[name=y]').prop('checked',false);
-    // $('input[id=yCustom]').prop('checked', true);
     setFieldValue("x", (x * r).toFixed(2));
     setFieldValue("y", (y * r).toFixed(2));
-
-    //$('select option:eq(10)').prop('selected',true)
-
-    // document.getElementById('x').value = (x * r).toFixed(2);
-    // document.getElementById('yCustom').value = (y * r).toFixed(2);
-    // document.getElementById('yCustom').value = (y * r).toFixed(2);
-    // $('input[id=yCustom]').prop('selected', true);
-
-    // $('input[name=y]').prop('checked',false);
-    //
-    // document.getElementById('form').elements['x'].type;
-    // document.getElementById('x').value = (x * r).toFixed(2);
-    // //document.getElementById("xValue").value = (x * r).toFixed(2);
-    // document.getElementById('yCustom').value = (y * r).toFixed(2);
-    // $('input[id=yCustom]').prop('checked', true);
-
-    //console.log(x, y, r);
 
     $('#form').submit();
 
@@ -308,10 +261,8 @@ function setFieldValue(name, value) {
     let custom = name + "Custom";
     if($('#'+name).length) {
         document.getElementById(name).value = value;
-        console.log(name, "a");
         if($('#'+custom).length) {
             document.getElementById(name+"Custom").value = value;
-            console.log(name, "aa");
             $('input[name=' + name + ']').prop('checked',false);
             $('#' + custom).prop('selected', true);
         }
@@ -319,12 +270,32 @@ function setFieldValue(name, value) {
         document.getElementById(name + 'Custom').value = value;
         $('input[name=' + name + ']').prop('checked',false);
         $('#' + custom).prop('checked', true);
-        console.log(name, "b");
     }
 }
 
-$(document).ready(function () {
-    $('#imageSvg').click(imageClicked);
-});
-
-// $("#imageSvg").addEventListener("click", printMousePos);
+function drawDots() {
+    let rxp = /{([^}]+)}/g,
+        curMatch;
+    let rows = [], j = -1;
+    if ($('#history').text()) {
+        userAttempts = $('#history').text();
+        let counter = 0;
+        while (curMatch = rxp.exec(userAttempts)) {
+            obj = JSON.parse("{" + curMatch[1] + "}");
+            let x = parseFloat(obj.x.toString().replace(",", "."));
+            let y = parseFloat(obj.y.toString().replace(",", "."));
+            let r = parseFloat(obj.r.toString().replace(",", "."));
+            let result = obj.result === 'true';
+            console.log(x,y,r)
+            let realX = 100 + 70 * (x/r);
+            let realY = 100 - 70 * (y/r);
+            let color;
+            if (result) color = "green";
+            else color = "red";
+            let text = '<circle stroke="black" r="2" fill="' + color + '" id="dot'+ counter++ +'" cx="'+ realX+'" cy="'+ realY+'"></circle>';
+            document.getElementById("imageSvg").innerHTML += text;
+            // $('#imageSvg').append(text);
+            $('#dot' + counter).fadeIn();
+        }
+    }
+}
