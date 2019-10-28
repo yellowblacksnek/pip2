@@ -1,53 +1,49 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="ru.yellowblacksnek.AreaUtils"%>
 <%@ page import="static ru.yellowblacksnek.AreaUtils.*" %>
-<%@ page import="ru.yellowblacksnek.Combination" %>
-<%@ page import="java.util.ArrayList" %>
 <%@ page import="ru.yellowblacksnek.FieldConfig" %>
+<%@ page import="ru.yellowblacksnek.History" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="ru.yellowblacksnek.ServerConfig" %>
 <html lang="ru">
 
 <head>
   <meta charset="utf-8">
-  <title>Первая лаба по вебу, драсте</title>
+  <title>Вторая лаба по вебу, драсте</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link href="css/styles.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js" type="text/javascript"></script>
   <script type="text/javascript" src="js/script.js"></script>
+<%--  <jsp:useBean id="history" scope="session" class="ru.yellowblacksnek.History"></jsp:useBean>--%>
 </head>
 
 <%
-    final String method = "get";
-    final Rect rect = new Rect("-R", "R/2", R, R/2);
-    final Triangle poly = new Triangle(new Point("0", "R/2"), new Point("R/2", "0"));
-    final Arc arc = new Arc(R, ArcSectors.III);
+    final String method = ServerConfig.method;
+    final Rect rect = ServerConfig.rect;
+    final Triangle poly = ServerConfig.poly;
+    final Arc arc = ServerConfig.arc;
 
-    final FieldConfig x = new FieldConfig("x", FieldConfig.FieldTypes.Text, FieldConfig.DataTypes.Text, -3, 3);
-    final FieldConfig y = new FieldConfig("y", FieldConfig.FieldTypes.Text, FieldConfig.DataTypes.Int, -3, 5);
-    final FieldConfig r = new FieldConfig("r", FieldConfig.FieldTypes.Select, FieldConfig.DataTypes.Int_And_Halves, 1, 3);
+    final FieldConfig x = ServerConfig.x;
+    final FieldConfig y = ServerConfig.y;
+    final FieldConfig r = ServerConfig.r;
 
-    final StringBuilder historyBuilder = new StringBuilder();
-    ArrayList<Combination> historyList = new ArrayList<>();
+    History history = new History();
     if(request.getSession().getAttribute("history") != null) {
-        historyList = (ArrayList<Combination>) request.getSession().getAttribute("history");
-    }
-    if(historyList != null) {
-      for(Combination each : historyList) {
-  //        String str = each.toString();
-          historyBuilder.append(each);
-      }
+        history = (History) request.getSession().getAttribute("history");
+    } else if(request.getServletContext().getAttribute("historyMap") != null) {
+        HashMap<String, History> historyMap = (HashMap<String, History>) request.getServletContext().getAttribute("historyMap");
+        history = historyMap.getOrDefault(request.getSession().getId(), new History());
     }
 %>
 
 <body>
 <table class="mainTable animated zoomIn fast">
-<%--  <jsp:setProperty name="user" property="name" value="<%=true%>" />--%>
   <tr>
     <td>
       <div class="rect headerRect">
         <div class="headerText name">Венщиков Марат, P3201</div>
-        <div class="headerText variant"> Вариант 201004</div>
+        <div class="headerText variant"> Вариант <%=ServerConfig.variant%></div>
       </div>
     </td>
   </tr>
@@ -134,12 +130,14 @@
             </tbody>
           </table>
         </div>
-        <a onclick="clearHist()" class="btn textBtn">Очистить историю</a>
       </div>
     </td>
   </tr>
 </table>
-<div class="hide" id="history"><%=historyBuilder.toString()%></div>
+<div class="hide" id="history">
+<%--  <jsp:getProperty name="history" property="historyString"/>--%>
+  <%=history.toString()%>
+</div>
 
 <script>
   $(document).ready(function () {

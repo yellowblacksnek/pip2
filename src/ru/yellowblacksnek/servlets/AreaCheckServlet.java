@@ -1,6 +1,9 @@
 package ru.yellowblacksnek.servlets;
 
 import ru.yellowblacksnek.Combination;
+import ru.yellowblacksnek.History;
+import ru.yellowblacksnek.ServerConfig;
+
 import static ru.yellowblacksnek.AreaUtils.*;
 
 import javax.servlet.RequestDispatcher;
@@ -11,13 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class AreaCheckServlet extends HttpServlet {
-    final Rect rect = new Rect("-R", "R/2", R, R/2);
-    final Triangle poly = new Triangle(new Point("0", "R/2"), new Point("R/2", "0"));
-    final Arc arc = new Arc(R, ArcSectors.III);
+    final Rect rect = ServerConfig.rect;
+    final Triangle poly = ServerConfig.poly;
+    final Arc arc = ServerConfig.arc;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -49,27 +51,44 @@ public class AreaCheckServlet extends HttpServlet {
         long endTime = System.nanoTime();
         long executionTime = endTime - startTime;
 
-        ArrayList<Combination> history = new ArrayList<>();
+        //ArrayList<Combination> history = new ArrayList<>();
+        History history;
 
         HttpSession session = req.getSession();
-        if(session.getAttribute("history") != null) {
-            history = (ArrayList<Combination>) session.getAttribute("history");
-        }
 
-        boolean unique = true;
+        boolean useContext = ServerConfig.useContext;
 
-        for(Combination each : history) {
-            if(each.getX().equals(combination.getX())
-            && each.getY().equals(combination.getY())
-            && each.getR().equals(combination.getR())
-            && each.isMatched() == combination.isMatched()) {
-                unique = false;
-                break;
+        if(useContext) {
+            ServletContext context = session.getServletContext();
+
+            HashMap<String, History> historyMap;
+
+            if (context.getAttribute("historyMap") != null) {
+                historyMap = (HashMap<String, History>) context.getAttribute("historyMap");
+            } else {
+                historyMap = new HashMap<>();
             }
-        }
 
-        if(unique) history.add(combination);
-        session.setAttribute("history", history);
+            String sessionId = session.getId();
+            if (historyMap.containsKey(sessionId)) {
+                history = historyMap.get(sessionId);
+            } else {
+                history = new History();
+                historyMap.put(sessionId, history);
+            }
+            boolean unique = isUnique(history, combination);
+            if(unique) history.getHistory().add(combination);
+            context.setAttribute("historyMap", historyMap);
+        } else {
+            if (session.getAttribute("history") != null) {
+                history = (History) session.getAttribute("history");
+            } else {
+                history = new History();
+            }
+            boolean unique = isUnique(history, combination);
+            if(unique) history.getHistory().add(combination);
+            session.setAttribute("history", history);
+        }
 
         req.setAttribute("x", x.replace('.', ','));
         req.setAttribute("y", y.replace('.', ','));
@@ -98,5 +117,17 @@ public class AreaCheckServlet extends HttpServlet {
             return ("" + (int) a);
         else
             return String.format("%1.2f", a).replaceAll(",", ".");
+    }
+
+    private boolean isUnique(History history, Combination combination){
+        for(Combination each : history.getHistory()) {
+            if(each.getX().equals(combination.getX())
+                    && each.getY().equals(combination.getY())
+                    && each.getR().equals(combination.getR())
+                    && each.isMatched() == combination.isMatched()) {
+                return false;
+            }
+        }
+        return true;
     }
 }

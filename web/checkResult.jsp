@@ -1,30 +1,32 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="ru.yellowblacksnek.AreaUtils"%>
 <%@ page import="static ru.yellowblacksnek.AreaUtils.*" %>
-<%@ page import="ru.yellowblacksnek.Combination" %>
-<%@ page import="java.util.ArrayList" %>
+<%@ page import="ru.yellowblacksnek.History" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="ru.yellowblacksnek.ServerConfig" %>
 <html lang="ru">
 <head>
-	<title>Результат вычислений</title>
+	<title>Результат</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js" type="text/javascript"></script>
     <link rel="stylesheet" href="css/responseStyles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
     <script language="text/javascript" src="js/script.js" type="text/javascript"></script>
+<%--    <jsp:useBean id="history" scope="session" class="ru.yellowblacksnek.History"></jsp:useBean>--%>
+
 </head>
 
 <%
-    final StringBuilder historyBuilder = new StringBuilder();
-    ArrayList<Combination> historyList = new ArrayList<>();
+    final Rect rect = ServerConfig.rect;
+    final Triangle poly = ServerConfig.poly;
+    final Arc arc = ServerConfig.arc;
+
+    History history = new History();
     if(request.getSession().getAttribute("history") != null) {
-        historyList = (ArrayList<Combination>) request.getSession().getAttribute("history");
-    }
-    if(historyList != null) {
-        for(Combination each : historyList) {
-            //        String str = each.toString();
-            historyBuilder.append(each);
-        }
+        history = (History) request.getSession().getAttribute("history");
+    } else if(request.getServletContext().getAttribute("historyMap") != null) {
+        HashMap<String, History> historyMap = (HashMap<String, History>) request.getServletContext().getAttribute("historyMap");
+        history = historyMap.getOrDefault(request.getSession().getId(), new History());
     }
 %>
 
@@ -33,7 +35,8 @@
     <tr>
         <td>
             <div class="rect headerRect">
-                <span class="headerText">Венщиков Марат, P3201<br> Вариант 201004</span>
+                <div class="headerText name">Венщиков Марат, P3201</div>
+                <div class="headerText variant"> Вариант <%=ServerConfig.variant%></div>
             </div>
         </td>
     </tr>
@@ -54,8 +57,9 @@
                         <svg fill="none" height="200" viewBox="0 0 200 200" width="200" xmlns="http://www.w3.org/2000/svg">
                             <rect height="200" transform="translate(0 1)" width="200" />
                             <path d="m 194.326,109.039 2.045,-3.269 h 1.325 L 195,110 l 2.76,4.301 h -1.336 l -2.098,-3.328 -2.109,3.328 h -1.33 l 2.766,-4.301 -2.702,-4.23 h 1.319 z" id="path3790" style="fill:#000000" />
-                            <path d="m 100,170 c -38.659251,0 -70,-31.34075 -70,-70 70,0 0,0 31.41075,0 38.65942,0 -10.7695,0 38.58925,0 0,38.65925 0,23.625 0,70 z" id="path3792" style="fill:#3e97ff;stroke-width:1.75" />
-                            <path d="m 30,65 v 35 H 135 L 100,65 Z" id="path3794" style="fill:#3e97ff;stroke-width:0.75585455" sodipodi:nodetypes="ccccc" />
+                            <rect x="<%=rect.x%>" y="<%=rect.y%>" width="<%=rect.width%>" height="<%=rect.height%>" fill="#3e97ff"/>
+                            <polygon points="100 100, <%=poly.first.x%> <%=poly.first.y%>, <%=poly.second.x%> <%=poly.second.y%>" fill="#3e97ff"/>
+                            <path d="M 100,100 h <%=arc.offset%> A <%=arc.radius%> <%=arc.radius%> 0 0 <%=arc.sweepFlag%> <%=arc.x%> <%=arc.y%>" fill="#3e97ff"/>
                             <line x1="95" x2="105" y1="65" y2="65" id="line3796" style="stroke:#000000;stroke-width:0.84002185" />
                             <line x1="135" x2="135" y1="95" y2="105" id="line3798" style="stroke:#000000;stroke-width:0.84723842" />
                             <line x1="65" x2="65" y1="95" y2="105" id="line3800" style="stroke:#000000;stroke-width:0.84723818" />
@@ -133,12 +137,14 @@
                         </tbody>
                     </table>
                 </div>
-                <a onclick="clearHist()" class="btn textBtn">Очистить историю</a>
             </div>
         </td>
     </tr>
 </table>
-<div class="hide" id="history"><%=historyBuilder.toString()%></div>
+<div class="hide" id="history">
+<%--    <jsp:getProperty name="history" property="historyString"/>--%>
+    <%=history.toString()%>
+</div>
 </body>
 </html>
 

@@ -1,6 +1,8 @@
 package ru.yellowblacksnek;
 
-public class Combination {
+import java.io.Serializable;
+
+public class Combination implements Serializable {
     private String x;
     private String y;
     private String r;

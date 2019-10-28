@@ -286,7 +286,6 @@ function drawDots() {
             let y = parseFloat(obj.y.toString().replace(",", "."));
             let r = parseFloat(obj.r.toString().replace(",", "."));
             let result = obj.result === 'true';
-            console.log(x,y,r)
             let realX = 100 + 70 * (x/r);
             let realY = 100 - 70 * (y/r);
             let color;
