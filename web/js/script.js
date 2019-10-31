@@ -298,3 +298,24 @@ function drawDots() {
         }
     }
 }
+
+function onInputButtonCLick(button) {
+    $('.inputButton').removeClass('selected');
+    $(button).addClass('selected');
+    let custom = $(button).attr('name')+'Custom';
+    console.log($('#'+custom).val());
+    document.getElementById(custom).value = $(button).val();
+    console.log($('#'+custom).val());
+}
+
+function onCheckBoxClick(box) {
+    //console.log($(box).prop('selected'));
+    if(!$(box).prop('checked')) {
+        $('.inputCheckBox').prop('checked', false);
+        $('.inputCheckBox').prop('required', true);
+    } else {
+        $('.inputCheckBox').prop('checked', false);
+        $(box).prop('checked', true);
+        $('.inputCheckBox').prop('required', false);
+    }
+}

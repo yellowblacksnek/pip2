@@ -5,7 +5,8 @@ public class FieldConfig {
         Text,
         Radio,
         Select,
-        Button
+        Button,
+        CheckBox
     }
 
     public enum DataTypes {
@@ -42,33 +43,47 @@ public class FieldConfig {
             buf.append(a);
         }
         if (fieldType == FieldTypes.Radio) {
-            if(dataType == DataTypes.Int) {
-                for (int i = (int)start; i <= (int) end; i += 1) {
-                    buf.append(String.format("<label><input type=\"radio\" name=\"%s\" value=\"%d\" required/>%d</label> ", name, i, i));
-                }
-            } else {
-                for (float i = start; i <= end; i += 0.5f) {
-                    buf.append(String.format("<label><input type=\"radio\" name=\"%s\" value=\"%f\" required/>%f</label> ", name, i, i));
-                }
-            }
+//            if(dataType == DataTypes.Int) {
+//                for (int i = (int)start; i <= (int) end; i += 1) {
+//                    buf.append(String.format("<label><input type=\"radio\" name=\"%s\" value=\"%d\" required/>%d</label> ", name, i, i));
+//                }
+//            } else {
+//                for (float i = start; i <= end; i += 0.5f) {
+//                    buf.append(String.format("<label><input type=\"radio\" name=\"%s\" value=\"%f\" required/>%f</label> ", name, i, i));
+//                }
+//            }
+            appendToBuf(buf, "<label><input type=\"radio\" name=\"" + name + "\" value=\"%s\" required/>%s</label> ");
             buf.append(String.format("<label><input type=\"radio\" name=\"%s\" id=\"%sCustom\" hidden/></label>", name, name));
         }
         if(fieldType == FieldTypes.Select) {
             buf.append(String.format("<select name=\"%s\" id=\"%s\" required> ",name,name));
             buf.append("<option value=\"\">Выберите число</option> ");
-            if(dataType == DataTypes.Int) {
-                for (int i = (int)start; i <= (int) end; i += 1) {
-                    buf.append(String.format("<option value=\"%d\">%d</option>", i, i));
-                }
-            } else {
-                for (float i = start; i <= end; i += 0.5f) {
-                    buf.append(String.format("<option value=\"%1.1f\">%1.1f</option>", i, i));
-                }
-            }
+            appendToBuf(buf, "<option value=\"%s\">%s</option>");
             buf.append(String.format("<option hidden id=\"%sCustom\"></option>", name));
             buf.append("</select>");
         }
+
+        if(fieldType == FieldTypes.Button) {
+            appendToBuf(buf,"<input type=\"button\" class=\"inputButton\" name=\"" + name + "\" value=\"%s\" title=\"%s\" onclick=\"onInputButtonCLick(this);\"> ");
+        }
+        if(fieldType == FieldTypes.CheckBox) {
+            appendToBuf(buf, "<label class=\"inputCheckBoxLabel\"><input class=\"inputCheckBox\" type=\"checkBox\" name=\"" + name + "\" value=\"%s\">%s</label> ");
+        }
         return buf.toString();
+    }
+
+    void appendToBuf(StringBuilder buf, String format) {
+        if(dataType == DataTypes.Int) {
+            for (int i = (int)start; i <= (int) end; i += 1) {
+                String value = "" + i;
+                buf.append(String.format(format, value, value));
+            }
+        } else {
+            for (float i = start; i <= end; i += 0.5f) {
+                String value = (i == Math.round(i)) ? "" + (int) i : "" + i;
+                buf.append(String.format(format, value, value));
+            }
+        }
     }
 
     @Override
