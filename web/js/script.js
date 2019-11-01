@@ -3,13 +3,12 @@ function checkData(text_field) {
     let id = text_field.id;
 
     let value = $("#"+id).val().replace(/,/g, '.');
-
     if (!$.isNumeric(value) && value != "-" && value != "") {
         $("#"+id).val("");
         $("#"+ id +"_wrongAlert").stop(true, true).fadeIn( 200 ).delay( 1000 ).fadeOut( 200 );
     }
 
-    if ((-3 > value) || (value > 3)) {
+    if ((parseInt($(text_field).prop("min")) > value) || (value > parseInt($(text_field).prop("max")))) {
         $("#"+id).val("");
         $("#"+ id +"_wrongAlert").stop(true, true).fadeIn( 200 ).delay( 1000 ).fadeOut( 200 );
     }
@@ -235,7 +234,7 @@ function getTransform(x, y, realX, realY) {
 
 function imageClicked(event) {
 
-    let val = $("#r").val();
+    let val = $('input[name="r"]:checked').val();
     if(!val) {
         $("#r")[0].reportValidity();
         return;
@@ -293,7 +292,6 @@ function drawDots() {
             else color = "red";
             let text = '<circle stroke="black" r="2" fill="' + color + '" id="dot'+ counter++ +'" cx="'+ realX+'" cy="'+ realY+'"></circle>';
             document.getElementById("imageSvg").innerHTML += text;
-            // $('#imageSvg').append(text);
             $('#dot' + counter).fadeIn();
         }
     }
@@ -302,14 +300,11 @@ function drawDots() {
 function onInputButtonCLick(button) {
     $('.inputButton').removeClass('selected');
     $(button).addClass('selected');
-    let custom = $(button).attr('name')+'Custom';
-    console.log($('#'+custom).val());
+    let custom = $(button).attr('name').charAt(0) +'Custom';
     document.getElementById(custom).value = $(button).val();
-    console.log($('#'+custom).val());
 }
 
 function onCheckBoxClick(box) {
-    //console.log($(box).prop('selected'));
     if(!$(box).prop('checked')) {
         $('.inputCheckBox').prop('checked', false);
         $('.inputCheckBox').prop('required', true);

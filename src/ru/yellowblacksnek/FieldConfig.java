@@ -64,10 +64,11 @@ public class FieldConfig {
         }
 
         if(fieldType == FieldTypes.Button) {
-            appendToBuf(buf,"<input type=\"button\" class=\"inputButton\" name=\"" + name + "\" value=\"%s\" title=\"%s\" onclick=\"onInputButtonCLick(this);\"> ");
+            buf.append(String.format("<input type=\"text\" autocomplete=\"off\" name=\"" + name + "\" id=\"%s\" required style=\"width:0; opacity:0; float: left;\">", name+"Custom"));
+            appendToBuf(buf,"<input type=\"button\" class=\"inputButton\" name=\"" + name + "Button\" value=\"%s\" title=\"%s\" onclick=\"onInputButtonCLick(this);\"> ");
         }
         if(fieldType == FieldTypes.CheckBox) {
-            appendToBuf(buf, "<label class=\"inputCheckBoxLabel\"><input class=\"inputCheckBox\" type=\"checkBox\" name=\"" + name + "\" value=\"%s\">%s</label> ");
+            appendToBuf(buf, "<label class=\"inputCheckBoxLabel\"><input class=\"inputCheckBox\" type=\"checkBox\" name=\"" + name + "\" value=\"%s\" onclick=\"onCheckBoxClick(this);\" required>%s</label> ");
         }
         return buf.toString();
     }
@@ -81,7 +82,7 @@ public class FieldConfig {
         } else {
             for (float i = start; i <= end; i += 0.5f) {
                 String value = (i == Math.round(i)) ? "" + (int) i : "" + i;
-                buf.append(String.format(format, value, value));
+                buf.append(String.format(format, value, value).replaceAll("\\.", ","));
             }
         }
     }
