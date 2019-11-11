@@ -15,6 +15,7 @@
   <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js" type="text/javascript"></script>
   <script type="text/javascript" src="js/script.js"></script>
+  <script type="text/javascript" src="js/index_ready.js"></script>
 <%--  <jsp:useBean id="history" scope="session" class="ru.yellowblacksnek.History"></jsp:useBean>--%>
 </head>
 
@@ -138,11 +139,4 @@
 <%--  <jsp:getProperty name="history" property="historyString"/>--%>
   <%=history.toString()%>
 </div>
-
-<script>
-  $(document).ready(function () {
-    $('#imageSvg').click(imageClicked);
-    drawDots();
-  });
-</script>
 </body>

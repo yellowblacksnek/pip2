@@ -147,7 +147,6 @@ function rowClicked(row) {
 function showDot(x, y, r, result) {
     let realX = 100 + 70 * (x/r);
     let realY = 100 - 70 * (y/r);
-    //console.log(x, y);
     if(realX < 0 || realY < 0 || realX > 200 || realY > 200) {
         $('#dot').stop(true,true).fadeOut();
         $('#arrow').stop(true,true).fadeOut()
@@ -236,7 +235,9 @@ function imageClicked(event) {
 
     let val = $('input[name="r"]:checked').val();
     if(!val) {
-        $("#r")[0].reportValidity();
+        $($('input[name="r"]').get().reverse()).each(function () {
+            this.reportValidity();
+        });
         return;
     }
 
@@ -305,12 +306,13 @@ function onInputButtonCLick(button) {
 }
 
 function onCheckBoxClick(box) {
-    if(!$(box).prop('checked')) {
-        $('.inputCheckBox').prop('checked', false);
-        $('.inputCheckBox').prop('required', true);
-    } else {
+    if($(box).prop('checked')) {
         $('.inputCheckBox').prop('checked', false);
         $(box).prop('checked', true);
         $('.inputCheckBox').prop('required', false);
+
+    } else {
+        $('.inputCheckBox').prop('checked', false);
+        $('.inputCheckBox').prop('required', true);
     }
 }
